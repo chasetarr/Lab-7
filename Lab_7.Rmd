@@ -1,0 +1,96 @@
+---
+title: "Lab 7 - Multiple Linear Regression"
+author: "Chase Tarr"
+date: "11/8/2021"
+output: html_document
+---
+
+```{r setup, include=TRUE, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+# Attach the packages we need
+
+library(tidyverse)
+library(palmerpenguins)
+library(GGally)
+library(broom)
+library(kableExtra)
+library(modelsummary)
+```
+
+## Intro to ggpairs
+ - Use GGally::ggpairs() function to create a pairs plot
+```{r}
+ggpairs(penguins)
+```
+ 
+```{r}
+penguins %>% 
+  select(species, bill_length_mm:body_mass_g) %>% # selecting columns
+  ggpairs(aes(color = species))
+
+ggplot(data = penguins, aes(x = bill_depth_mm, y = body_mass_g, group = species)) +
+  geom_point(aes(color = species)) + # critical to use the right variable included or excluded
+  geom_smooth(method = "lm")
+```
+
+## Multiple Linear Regression - Penguins
+ - Use multiple linear regression to try to understand the relationship between multiple predictor variables and a single continuous outcome variable (body mass).
+
+```{r}
+penguin_lm <- lm(body_mass_g ~ flipper_length_mm + bill_depth_mm, data = penguins)
+
+# return just the coefficients:
+penguin_lm
+```
+
+How would you interpret this coefficient for flipper_length_mm?
+ - On average, we would expect a 51.54 gram increase in penguin body mass for every 1mm increase in flipper length if everything else is held constant. **USE IN LINE CODE REFERENCING**
+ 
+ Use `summary()` function to get more information
+```{r}
+summary(penguin_lm)
+```
+What does this R-squared value of 0.7596 mean for this model?
+ - The R-squared value of 0.7596 means there is 76% of variance in penguin body mass is explained by this model **there is no good or bad R-squared value**
+ 
+### Using the `broom` functions tidy and glance
+
+Use broom::tidy to get the coefficient summary in a data frame.
+Use broom::glance to get the data summary in a data frame.
+```{r}
+penguin_lm_tidy <- tidy(penguin_lm)
+penguin_lm_tidy
+```
+
+Try using in-line code to refer to (print) the bill depth coefficient
+  `r penguin_lm_tidy$estimate[3]`
+  
+```{r}
+penguin_lm_glance <- glance(penguin_lm)
+
+penguin_lm_glance
+```
+
+## Try another model
+ - We have thought really hard, done a literature review, consulted with experts, deeply explored our data, and decided that the three most critical variables to include in this model are:
+    - flipper length
+    - species
+    - sex
+    
+Task: create a multiple linear regression model using 3 predictor variables
+then, take a look a the model outputs and interpret the coefficients with a neighbor
+
+```{r}
+penguin_lm_task <- lm(body_mass_g ~ flipper_length_mm + species + sex, data = penguins)
+
+penguin_lm_task
+```
+ - reference level for species is Adelie, reference level for sex is female
+ 
+ mass(g) = -365.82 + 20.02(flipper length mm) - 87.63(Chinstrap) + 836.26(Gentoo) + 530.38(Male)
+ 
+ if everything else is held constant, we expect on average a Gentoo penguin to be 836.26 grams larger than an Adelie penguin
+ 
+ if everthing else is held constant, on averae we expect a male penguin to weight 530.4 grams more than a female
+  
