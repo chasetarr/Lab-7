@@ -16,6 +16,7 @@ library(GGally)
 library(broom)
 library(kableExtra)
 library(modelsummary)
+library(stargazer)
 ```
 
 ## Intro to ggpairs
@@ -92,5 +93,33 @@ penguin_lm_task
  
  if everything else is held constant, we expect on average a Gentoo penguin to be 836.26 grams larger than an Adelie penguin
  
- if everthing else is held constant, on averae we expect a male penguin to weight 530.4 grams more than a female
+ if everthing else is held constant, on average we expect a male penguin to weight 530.4 grams more than a female
   
+  
+## Use broom::augment() to see predicted values
+
+```{r}
+augment(penguin_lm_task)
+```
+
+## Use plot() to look at model diagnostics
+
+```{r}
+plot(penguin_lm_task) # looking at cooks distance will illustrate outliers in data
+```
+
+ - Conceptual understanding and expertise allows me to responsibly determine that penguin species, sex, and flipper length are reasonable predictor variable (make sure you're thinking hard about variables adn different variable combinations)
+ - Diagnostic plots all check out for normality of residuals, homosedasticity, and no worrisome outliers (<< last one not an assumption)
+
+## Make output tables
+ - Using modelsummary:
+```{r}
+modelsummary(penguin_lm_task)
+```
+
+Using stargazer:
+```{r, results = "asis"}
+stargazer(penguin_lm_task, type = "html")
+```
+
+
